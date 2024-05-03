@@ -7,8 +7,18 @@ import org.springframework.web.bind.annotation.RestController;
 @Controller
 public class WebController {
 
+    @GetMapping("/main")
+    public String mainPage(){
+        return "main";
+    }
+
     @GetMapping("/homePage")
     public String homePage(){
         return "homePage";
+    }
+
+    @GetMapping("/my")
+    public String myPage(){
+        return "my";
     }
 }

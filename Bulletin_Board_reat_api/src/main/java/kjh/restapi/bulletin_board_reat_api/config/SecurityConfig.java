@@ -26,8 +26,8 @@ public class SecurityConfig {
                 .successHandler(new CustomOAuth2LoginSuccessHandler()));
 
         http.authorizeHttpRequests(authz -> authz
-                .requestMatchers("/home").permitAll()
-                .anyRequest().permitAll());
+                .requestMatchers("/main","login/**").permitAll()
+                .anyRequest().authenticated());
         return http.build();
     }
 }

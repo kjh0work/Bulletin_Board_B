@@ -12,10 +12,11 @@ public class CustomOauth2User implements OAuth2User {
 
     private final OAuth2Response oAuth2Response;
 
-    private final String role = "USER";
+    private final Collection<GrantedAuthority> authorities;
 
-    public CustomOauth2User(OAuth2Response oAuth2Response){
+    public CustomOauth2User(OAuth2Response oAuth2Response, Collection<GrantedAuthority> authorities){
         this.oAuth2Response = oAuth2Response;
+        this.authorities = authorities;
     }
 
 
@@ -26,14 +27,7 @@ public class CustomOauth2User implements OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-                return role;
-            }
-        });
-        return collection;
+        return authorities;
     }
 
     @Override

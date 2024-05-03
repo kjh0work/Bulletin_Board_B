@@ -3,6 +3,8 @@ package kjh.restapi.bulletin_board_reat_api.oauth2;
 import kjh.restapi.bulletin_board_reat_api.entity.Account;
 import kjh.restapi.bulletin_board_reat_api.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Component;
 
 import java.sql.SQLOutput;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 @Component
@@ -46,8 +50,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         Account account = this.accountRepository.findByUserHash(userHash);
 
         if(account == null){
-            account = new Account(userHash, oAuth2Response.getName(), oAuth2Response.getEmail());
-            account.setSignUpDate(LocalDate.now());
+            account = new Account(userHash, oAuth2Response.getName(), oAuth2Response.getEmail(),"USER",LocalDate.now());
             this.accountRepository.save(account);
         }
         else{
@@ -56,6 +59,9 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             account.setLastLoginDate(LocalDate.now());
         }
 
-        return new CustomOauth2User(oAuth2Response);
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(account.getRole()));
+
+        return new CustomOauth2User(oAuth2Response, authorities);
     }
 }
