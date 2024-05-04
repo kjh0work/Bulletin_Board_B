@@ -27,6 +27,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authz -> authz
                 .requestMatchers("/main","login/**").permitAll()
+                .requestMatchers("/Board/**").hasRole("ADMIN")
                 .anyRequest().authenticated());
         return http.build();
     }

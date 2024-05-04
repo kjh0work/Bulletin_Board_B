@@ -2,7 +2,9 @@ package kjh.restapi.bulletin_board_reat_api.oauth2;
 
 import kjh.restapi.bulletin_board_reat_api.entity.Account;
 import kjh.restapi.bulletin_board_reat_api.repository.AccountRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -23,6 +25,9 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Value("${admin.email}")
+    private String AdminEmail;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -50,7 +55,9 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         Account account = this.accountRepository.findByUserHash(userHash);
 
         if(account == null){
-            account = new Account(userHash, oAuth2Response.getName(), oAuth2Response.getEmail(),"USER",LocalDate.now());
+            account = new Account(userHash, oAuth2Response.getName(), oAuth2Response.getEmail(),LocalDate.now());
+            if(oAuth2Response.getEmail().equals(AdminEmail)) account.setRole("ADMIN");
+            else account.setRole("USER");
             this.accountRepository.save(account);
         }
         else{

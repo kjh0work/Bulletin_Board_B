@@ -5,6 +5,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.*;
 
+import javax.swing.text.StyleContext;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,16 +22,15 @@ public class Account {
     private String email;
     private String role;
 
-    @OneToMany(mappedBy = "account")
-    private List<Board> boardList = new ArrayList<>();
+//    @OneToMany(mappedBy = "account")
+//    private List<Content> contentList = new ArrayList<>();
     private LocalDate signUpDate;
     private LocalDate lastLoginDate = LocalDate.now();
 
-    public Account(String userHash, String name, String email, String role, LocalDate now) {
+    public Account(String userHash, String name, String email, LocalDate now) {
         this.userHash = userHash;
         this.userName = name;
         this.email = email;
-        this.role = role;
         this.signUpDate = now;
     }
 
