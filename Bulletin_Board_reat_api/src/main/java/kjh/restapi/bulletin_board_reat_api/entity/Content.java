@@ -1,5 +1,6 @@
 package kjh.restapi.bulletin_board_reat_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +15,7 @@ public class Content {
     private Long contentId;
     @ManyToOne
     @JoinColumn(name = "Account_ID")
+    @JsonIgnore
     private Account account;
     @ManyToOne
     @JoinColumn(name = "BOARD_ID")

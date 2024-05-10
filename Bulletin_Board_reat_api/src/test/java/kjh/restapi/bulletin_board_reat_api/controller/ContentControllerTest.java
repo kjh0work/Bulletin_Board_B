@@ -9,6 +9,8 @@ import kjh.restapi.bulletin_board_reat_api.entity.Content;
 import kjh.restapi.bulletin_board_reat_api.repository.AccountRepository;
 import kjh.restapi.bulletin_board_reat_api.repository.BoardRepository;
 import kjh.restapi.bulletin_board_reat_api.repository.ContentRepository;
+import kjh.restapi.bulletin_board_reat_api.service.ContentService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +19,9 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,9 +30,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -40,36 +47,83 @@ class ContentControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ContentRepository contentRepository;
+    private AccountRepository accountRepository;
+
     @Autowired
-    private ModelMapper modelMapper;
+    private BoardRepository boardRepository;
+
+    @Autowired
+    private ContentRepository contentRepository;
+
+    //@MockBean
+    @Autowired
+    private ContentService contentService;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+//    @BeforeEach
+//    public void setup(){
+//        Content content = generateContent("naver_account");
+//        when(contentService.saveContent(any(CreateContentDto.class))).thenReturn(content);
+//        when(contentService.findById(content.getContentId())).thenReturn(content);
+//    }
 
 
     @Test
     @DisplayName("정상적으로 Content를 생성")
     @WithMockUser
     public void createContent() throws Exception {
+        String userhash = "naver_account";
 
-        CreateContentDto contentDto = generateContentDto();
+        CreateContentDto contentDto = generateContentDto(userhash);
         String json = objectMapper.writeValueAsString(contentDto);
 
-        this.mockMvc.perform(post("/Content/create")
+        this.mockMvc.perform(post("/content/create")
                         .content(json)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaTypes.HAL_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+                .andExpect(jsonPath("$.content.contentId").exists())
                 ;
     }
 
-    private CreateContentDto generateContentDto(){
+    @Test
+    @DisplayName("정상적으로 content 가져오기")
+    @WithMockUser
+    public void getContent_200() throws Exception {
+        String userhash = "naver_account";
+
+        CreateContentDto contentDto = generateContentDto(userhash);
+        Content content = this.contentService.saveContent(contentDto);
+
+        this.mockMvc.perform(get("/content/get")
+                        .contentType(MediaType.APPLICATION_JSON)
+                .param("contentId",content.getContentId()+""))
+                .andDo(print())
+                .andExpect(status().isOk())
+                ;
+    }
+
+
+    private CreateContentDto generateContentDto(String userhash){
+        Account account = new Account();
+        account.setUserHash(userhash);
+        account.setRole("USER");
+        account.setEmail("user@email.com");
+
+        this.accountRepository.save(account);
+
+        Board board = new Board();
+        board.setBoardName("Free_Board");
+
+        Board savedBoard = this.boardRepository.save(board);
+
         CreateContentDto contentDto = CreateContentDto.builder()
-                .accountId("naver_account")
-                .boardId(0L)
+                .accountId(userhash)
+                .boardId(savedBoard.getBoardId())
                 .title("title0")
                 .article("article_Test")
                 .createTime(LocalDateTime.now())
@@ -78,15 +132,24 @@ class ContentControllerTest {
         return contentDto;
     }
 
-//    @Test
-//    @DisplayName("Account, Board, Content 연관관계 테스트")
-//    public void JPATest(){
-//        CreateContentDto contentDto =  new CreateContentDto(0L,"naver_account"+0L,"title"+0L,"article"+0L, LocalDateTime.now(),LocalDateTime.now());
-//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-//        Content content = modelMapper.map(contentDto, Content.class);
-//        Content saved = contentRepository.save(content);
-//        System.out.println("==========================");
-//        System.out.println(saved.toString());
-//        System.out.println("==========================");
-//    }
+    public Content generateContent(String userhash){
+        Account account = new Account();
+        account.setUserHash(userhash);
+        account.setRole("USER");
+        account.setEmail("user@email.com");
+
+        this.accountRepository.save(account);
+
+        Board board = new Board();
+        board.setBoardName("Free_Board");
+
+        Board savedBoard = this.boardRepository.save(board);
+        Content content = new Content();
+        content.setAccount(account);
+        content.setBoard(board);
+        content.setTitle("title");
+        content.setArticle("article");
+        return this.contentRepository.save(content);
+    }
+
 }
