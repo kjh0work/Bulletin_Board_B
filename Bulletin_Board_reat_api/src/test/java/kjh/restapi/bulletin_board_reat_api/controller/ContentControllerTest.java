@@ -146,7 +146,7 @@ class ContentControllerTest {
         Board savedBoard = this.boardRepository.save(board);
         Content content = new Content();
         content.setAccount(account);
-        content.setBoard(board);
+        content.setBoard(savedBoard);
         content.setTitle("title");
         content.setArticle("article");
         return this.contentRepository.save(content);

@@ -67,7 +67,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         }
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(account.getRole()));
+        authorities.add(new SimpleGrantedAuthority("ROLE_"+account.getRole()));
 
         return new CustomOauth2User(oAuth2Response, authorities);
     }

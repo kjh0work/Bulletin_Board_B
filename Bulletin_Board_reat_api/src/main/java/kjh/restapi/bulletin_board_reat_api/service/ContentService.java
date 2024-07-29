@@ -1,6 +1,5 @@
 package kjh.restapi.bulletin_board_reat_api.service;
 
-import kjh.restapi.bulletin_board_reat_api.dto.ContentDto;
 import kjh.restapi.bulletin_board_reat_api.dto.CreateContentDto;
 import kjh.restapi.bulletin_board_reat_api.dto.UpdateContentDto;
 import kjh.restapi.bulletin_board_reat_api.entity.Account;
@@ -15,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class ContentService {
