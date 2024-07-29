@@ -1,4 +1,23 @@
 package kjh.restapi.bulletin_board_reat_api.dto;
 
-public class BoardResource {
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import kjh.restapi.bulletin_board_reat_api.controller.BoardController;
+import kjh.restapi.bulletin_board_reat_api.entity.Board;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.RepresentationModel;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+
+@Getter @Setter
+public class BoardResource extends RepresentationModel<BoardResource> {
+
+    //@JsonUnwrapped
+    private Board board;
+
+    public BoardResource(Board board){
+        this.board = board;
+        add(linkTo(BoardController.class).withSelfRel());
+    }
 }

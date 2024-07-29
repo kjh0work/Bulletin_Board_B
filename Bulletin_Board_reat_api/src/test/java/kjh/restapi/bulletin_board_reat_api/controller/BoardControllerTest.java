@@ -39,7 +39,7 @@ class BoardControllerTest {
                 .content(boardName).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("boardName").value("FreeBoard"))
+                .andExpect(jsonPath("board.boardName").value("FreeBoard"))
                 ;
     }
 }

@@ -1,8 +1,10 @@
 package kjh.restapi.bulletin_board_reat_api.controller;
 
 import kjh.restapi.bulletin_board_reat_api.dto.BoardDto;
+import kjh.restapi.bulletin_board_reat_api.dto.BoardResource;
 import kjh.restapi.bulletin_board_reat_api.entity.Board;
 import kjh.restapi.bulletin_board_reat_api.repository.BoardRepository;
+import kjh.restapi.bulletin_board_reat_api.service.BoardService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class BoardController {
 
     @Autowired
-    private BoardRepository boardRepository;
+    private BoardService boardService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -40,13 +42,13 @@ public class BoardController {
 
         Board board = new Board();
         board.setBoardName(boardName);
-        Board saved = boardRepository.save(board);
-
+        Board saved = boardService.save(board);
 
         URI uri = linkTo(methodOn(BoardController.class).createBoard(boardName, errors)).toUri();
 
-        //body에 boardID까지 필요한가?
-        return ResponseEntity.created(uri).body(saved);
+        BoardResource boardResource = new BoardResource(saved);
+
+        return ResponseEntity.created(uri).body(boardResource);
     }
 
 
