@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인 화면</title>
+</head>
+<body>
+    <form th:action="@{http://localhost:8080/login/oauth2/authorization/naver}" th:method="get">
+        <button th:type="submit">네이버로 로그인</button>
+    </form>
+</body>
+</html>
