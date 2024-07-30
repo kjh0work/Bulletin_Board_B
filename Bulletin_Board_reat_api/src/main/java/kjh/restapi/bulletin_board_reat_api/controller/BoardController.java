@@ -7,18 +7,19 @@ import kjh.restapi.bulletin_board_reat_api.repository.BoardRepository;
 import kjh.restapi.bulletin_board_reat_api.service.BoardService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping(value = "/board")
 public class BoardController {
 
     @Autowired
@@ -34,7 +35,7 @@ public class BoardController {
     *
     * */
 
-    @PostMapping
+    @PostMapping("/admin/board")
     public ResponseEntity createBoard(@RequestBody String boardName, Errors errors){
         if(errors.hasErrors()){
             return ResponseEntity.badRequest().build();
@@ -49,6 +50,20 @@ public class BoardController {
         BoardResource boardResource = new BoardResource(saved);
 
         return ResponseEntity.created(uri).body(boardResource);
+    }
+
+    @GetMapping("/board")
+    public ResponseEntity<CollectionModel<BoardResource>> getAllBoard(){
+
+        List<Board> boardList = boardService.getAllBoard();
+
+        List<BoardResource> boardResources = boardList.stream().map(BoardResource::new).toList();
+
+        CollectionModel<BoardResource> collectionModel = CollectionModel.of(boardResources);
+
+        collectionModel.add(linkTo(methodOn(BoardController.class).getAllBoard()).withSelfRel());
+
+        return ResponseEntity.ok(collectionModel);
     }
 
 

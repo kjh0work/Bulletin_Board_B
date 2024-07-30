@@ -26,8 +26,8 @@ public class SecurityConfig {
                 .successHandler(new CustomOAuth2LoginSuccessHandler()));
 
         http.authorizeHttpRequests(authz -> authz
-                .requestMatchers("/main","login/**").permitAll()
-                .requestMatchers("/board/**").hasRole("ADMIN")
+                .requestMatchers("/main","login/**","/board/**").permitAll()
+                .requestMatchers("/admin/board/**").hasRole("ADMIN")
                 .anyRequest().authenticated());
         return http.build();
     }
